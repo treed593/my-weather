@@ -14,7 +14,8 @@
         var longitude = position.coords.longitude;
         var api_key = "8faf8db1691d756d2d2108c1dc142c43/";
         var url = "https://api.forecast.io/forecast/";
-        $.getJSON(url+api_key+latitude+","+longitude, function (json) {
+        var proxy ="http://cors.io/?u="
+        $.getJSON(proxy+url+api_key+latitude+","+longitude, function (json) {
           var current_conditions = json.results[0].currently.summary;
         });
         document.getElementById('messages').innerHTML = current_conditions;
