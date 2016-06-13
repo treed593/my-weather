@@ -25,12 +25,12 @@
         var longitude = position.coords.longitude;
         var api_key = "8faf8db1691d756d2d2108c1dc142c43/";
         var url = "https://api.forecast.io/forecast/";
-        var proxy ="http://cors.io/?u=";
+        var proxy ="https://trevorreed.com/proxy.php?url=";
         var query_url = proxy+url+api_key+latitude+","+longitude;
         $.getJSON(query_url, function (json) {
-          
+          console.log(json);
           // Get the updated time
-          var date = new Date(json.currently.time*1000);
+          var date = new Date(json.contents.currently.time*1000);
           var hours = date.getHours();
           var minutes = "0" + date.getMinutes();
           var seconds = "0" + date.getSeconds();
@@ -38,11 +38,11 @@
           //document.getElementById('messages').innerHTML = formattedTime;
           
           // Get the current temp
-          var temperature = json.currently.temperature;
+          var temperature = json.contents.currently.temperature;
           document.getElementById("temperature").innerHTML = temperature + "&deg; F";
 
           // Show an icon
-          var current_icon = json.currently.icon;
+          var current_icon = json.contents.currently.icon;
           UrlExists('images/'+current_icon+'.svg', function(status){
             if(status === 200){
               document.getElementById("icon").innerHTML = "<img src='images/"+current_icon+".svg' />";
