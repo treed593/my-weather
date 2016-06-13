@@ -2,6 +2,17 @@
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script type="text/javascript">
+    function UrlExists(url, cb){
+    jQuery.ajax({
+        url:      url,
+        dataType: 'text',
+        type:     'GET',
+        complete:  function(xhr){
+            if(typeof cb === 'function')
+               cb.apply(this, [xhr.status]);
+        }
+    });
+}
       //Check if browser supports W3C Geolocation API
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(successFunction, errorFunction);
@@ -14,13 +25,59 @@
         var longitude = position.coords.longitude;
         var api_key = "8faf8db1691d756d2d2108c1dc142c43/";
         var url = "https://api.forecast.io/forecast/";
-        var proxy ="http://cors.io/?u="
-        $.getJSON(proxy+url+api_key+latitude+","+longitude, function (json) {
-          var current_conditions = json.results[0].currently.summary;
+        var proxy ="http://cors.io/?u=";
+        var query_url = proxy+url+api_key+latitude+","+longitude;
+        $.getJSON(query_url, function (json) {
+          
+          // Get the updated time
+          var date = new Date(json.currently.time*1000);
+          var hours = date.getHours();
+          var minutes = "0" + date.getMinutes();
+          var seconds = "0" + date.getSeconds();
+          var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+          //document.getElementById('messages').innerHTML = formattedTime;
+          
+          // Get the current temp
+          var temperature = json.currently.temperature;
+          document.getElementById("temperature").innerHTML = temperature + "&deg; F";
+
+          // Show an icon
+          var current_icon = json.currently.icon;
+          UrlExists('images/'+current_icon+'.svg', function(status){
+            if(status === 200){
+              document.getElementById("icon").innerHTML = "<img src='images/"+current_icon+".svg' />";
+            }
+            else if(status === 404){
+              document.getElementById("icon").innerHTML = "<svg style='width:24px;height:24px' viewBox='0 0 24 24'><path fill='#000000' d='M20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12M22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12M15.5,8C16.3,8 17,8.7 17,9.5C17,10.3 16.3,11 15.5,11C14.7,11 14,10.3 14,9.5C14,8.7 14.7,8 15.5,8M10,9.5C10,10.3 9.3,11 8.5,11C7.7,11 7,10.3 7,9.5C7,8.7 7.7,8 8.5,8C9.3,8 10,8.7 10,9.5M12,14C13.75,14 15.29,14.72 16.19,15.81L14.77,17.23C14.32,16.5 13.25,16 12,16C10.75,16 9.68,16.5 9.23,17.23L7.81,15.81C8.71,14.72 10.25,14 12,14Z' /></svg>";
+              document.getElementById('messages').innerHTML = "I do not know how to illustrate your weather, try looking outside?"
+            }
+          });
+          
+         // Get the current city
+         var city_url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
+         var city_api = "&key=AIzaSyD6mjw_1DLSuujVvmxXg2ERdM3HwBGov_Y";
+         var city_full_url = city_url + latitude + "," + longitude + city_api;
+         $.getJSON(city_full_url, function (json) {
+          for (var i=0; i<json.results[0].address_components.length; i++) {
+            for (var b=0;b<json.results[0].address_components[i].types.length;b++) {
+              if (json.results[0].address_components[i].types[b] == "locality") {
+                    city= json.results[0].address_components[i].long_name;
+                    break;
+              }
+            }
+          }
+          for (var i=0; i<json.results[0].address_components.length; i++) {
+            for (var b=0;b<json.results[0].address_components[i].types.length;b++) {
+              if (json.results[0].address_components[i].types[b] == "administrative_area_level_1") {
+                    state= json.results[0].address_components[i].short_name;
+                    break;
+              }
+            }
+          }
+          document.getElementById("welcome").innerHTML = "Below is the current weather for " + city + ", " + state;
+         });
+
         });
-        document.getElementById('messages').innerHTML = current_conditions;
-        //document.getElementById("dispLat").innerHTML = latitude ;
-        //document.getElementById("dispLong").innerHTML = longitude;
       }
 
       function errorFunction(position) {
@@ -29,8 +86,9 @@
     </script>
   </head>
   <body>
-    <div id="dispLat"></div>
-    <div id="dispLong"></div>
+    <div id="welcome">Welcome to my site, please be patient at we get your location</div>
+    <div id="temperature"></div>
     <div id="messages"></div>
+    <div id="icon"></div>
   </body>
 </html>
