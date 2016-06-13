@@ -16,7 +16,8 @@
 }
       //Check if browser supports W3C Geolocation API
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(successFunction, errorFunction);
+        var options = {timeout: 60000}
+        navigator.geolocation.getCurrentPosition(successFunction, errorFunction, options);
         } else {
         alert('Geolocation is required for this page, but your browser doesn&apos;t support it. Try it with a browser that does, such as Opera 10.60.');
       }
@@ -29,7 +30,6 @@
         var proxy ="https://trevorreed.com/proxy.php?url=";
         var query_url = proxy+url+api_key+latitude+","+longitude;
         $.getJSON(query_url, function (json) {
-          console.log(json);
           // Get the updated time
           var date = new Date(json.contents.currently.time*1000);
           var hours = date.getHours();
@@ -103,6 +103,7 @@
             }
           }
           document.getElementById("welcome").innerHTML = "Below is the current weather for " + city + ", " + state;
+          document.getElementById("loading-content").style.display="none";
          });
 
         });
@@ -114,7 +115,10 @@
     </script>
   </head>
   <body>
-    <div id="welcome">Welcome to my site, please be patient at we get your location</div>
+    <div id="loading-content" class="loading">
+      <svg width='120' height='120' viewBox='0 0 100 100' preserveAspectRatio='xMidYMid' class='uil-pacman'><style>.a{fill:#f0c741;}</style><rect width='100' height='100' class='bk' fill='#fff'/><path d='M0 50A50 50 0 1 0 100 50' class='a'><animateTransform attributeName='transform' type='rotate' dur='1s' repeatCount='indefinite' from='30 50 50' to='30 50 50' values='30 50 50;0 50 50;30 50 50'/></path><path d='M0 50A50 50 0 1 1 100 50' class='a'><animateTransform attributeName='transform' type='rotate' dur='1s' repeatCount='indefinite' from='-30 50 50' to='-30 50 50' values='-30 50 50;0 50 50;-30 50 50'/></path><br/>Loading...</svg>
+    </div>
+    <div id="welcome"></div>
     <div id="temperature"></div>
     <div id="messages"></div>
     <div id="icon"></div>
