@@ -2,3 +2,4 @@
 1. Name for app
 2. Layout
 3. Icon
+4. SSL own domain
