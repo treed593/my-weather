@@ -3,3 +3,4 @@
 2. Layout
 3. Icon
 4. SSL own domain
+5. Sign all commits
